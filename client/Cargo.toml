@@ -1,0 +1,9 @@
+[package]
+name = "shooter3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ewebsock = "0.6.0"
+macroquad = "0.4.8"
+shared = { path = "./shared" }
