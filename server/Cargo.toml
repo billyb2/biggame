@@ -4,8 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio-tungstenite = { version = "0.23" }
-tokio = { version = "1", features = ["net", "rt-multi-thread", "macros", "time", "sync"] }
-futures-util = "0.3.30"
-shared = { path = "./shared" }
-glam = "0.28.0"
+tokio = { version = "1", features = ["net", "rt-multi-thread", "macros", "time", "sync", "io-std"] }
+shared = { path = "../shared" }
+uuid = "1"
+anyhow = "1.0.95"
+warp = "0.3.7"
+url = "2.5.4"
+renet2 = "0.1"
+renetcode2 = "0.1"
+renet2_netcode = { version = "0.1", default-features = false, features = ["serde", "native_transport", "wt_server_transport", "ws_server_transport"] }
+log = "0.4.25"

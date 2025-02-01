@@ -114,7 +114,7 @@ HTML=$(
 	END
 )
 
-TARGET_DIR="target/wasm32-unknown-unknown"
+TARGET_DIR="../target/wasm32-unknown-unknown"
 # Build
 if [ -n "$RELEASE" ]; then
 	cargo build --release --target wasm32-unknown-unknown
