@@ -60,6 +60,7 @@
             openssl.dev
             openssl
             pkg-config
+            sccache
           ] ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
 
         # Common arguments can be set here to avoid repeating them later
