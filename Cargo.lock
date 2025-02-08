@@ -896,9 +896,9 @@ checksum = "9e05e7e6723e3455f4818c7b26e855439f7546cf617ef669d1adedb8669e5cb9"
 
 [[package]]
 name = "glam"
-version = "0.28.0"
+version = "0.29.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "779ae4bf7e8421cf91c0b3b64e7e8b40b862fba4d393f59150042de7c4965a94"
+checksum = "dc46dd3ec48fdd8e693a98d2b8bafae273a2d54c1de02a2a7e3d57d501f39677"
 dependencies = [
  "serde",
 ]
@@ -2043,9 +2043,9 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "renet2"
-version = "0.1.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb8eda5938fd2b1543e4a815ce2ca3b32c8d520f3e531a06fa7c2e8aceef6b24"
+checksum = "2845ea274d4382dee12422295cf049dfead686bb5e0a9b7e70fb6cc653935734"
 dependencies = [
  "bytes",
  "log",
@@ -2054,9 +2054,9 @@ dependencies = [
 
 [[package]]
 name = "renet2_netcode"
-version = "0.1.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7275175c1aaedc614d2e70fc50ffa575e40392bb8068186f65628d15f2f92d3a"
+checksum = "6ff2e1b04b6d9f5743c24f6a949705ffea2aa687276e47492acb09eadc11673f"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -2064,7 +2064,6 @@ dependencies = [
  "crossbeam",
  "fragile",
  "futures",
- "getrandom 0.2.15",
  "hmac-sha256",
  "http 1.2.0",
  "js-sys",
@@ -2092,9 +2091,9 @@ dependencies = [
 
 [[package]]
 name = "renetcode2"
-version = "0.1.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e6a47a37ce832ad3f751aa218f74d9b4356435abbc7982a3e5abef61f3229c1"
+checksum = "83b1265691f8bec0c83c4c4802f1e814bf8b0b33ebc5221f8f1c2190723019fc"
 dependencies = [
  "chacha20poly1305",
  "log",
@@ -2441,8 +2440,9 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "getrandom 0.2.15",
  "getrandom 0.3.1",
- "glam 0.28.0",
+ "glam 0.29.2",
  "rand 0.9.0",
  "serde",
 ]

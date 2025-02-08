@@ -89,7 +89,7 @@ pub fn new_server <
     // WebTransport socket
     let (wt_socket, cert_hash) = {
         let (config, cert_hash) =
-            WebTransportServerConfig::new_selfsigned(wildcard_addr, max_clients);
+            WebTransportServerConfig::new_selfsigned(wildcard_addr, max_clients)?;
         (
             WebTransportServer::new(config, tokio::runtime::Handle::current())?,
             cert_hash,

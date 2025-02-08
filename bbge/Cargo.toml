@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1"
 log = "0.4"
-renet2 = "0.1"
-renet2_netcode = { version = "0.1", features = ["serde"] }
-renetcode2 = "0.1"
+renet2 = "0.3"
+renet2_netcode = { version = "0.3", features = ["serde"] }
+renetcode2 = "0.3"
 serde = "1"
 rmp-serde = "1"
 url = "2"
