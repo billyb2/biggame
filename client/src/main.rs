@@ -1,12 +1,4 @@
-mod net;
-
-use net::new_renet_client;
-use renet2::DefaultChannel;
-#[cfg(not(target_family = "wasm"))]
-use std::time::Instant;
-#[cfg(target_family = "wasm")]
-use wasmtimer::std::{Instant, SystemTime};
-
+use bbge::net::client::{new_client, Instant};
 use macroquad::{input::is_key_down, prelude::*};
 use shared::{ClientMessage, GameState, Input, PlayerID};
 
@@ -18,25 +10,20 @@ async fn main() {
         console_log::init_with_level(log::Level::Info).expect("error initializing logger");
     }
 
-    let (mut client, mut transport) = new_renet_client();
-    let mut last_updated = Instant::now();
+    let mut client = new_client("127.0.0.1".parse().unwrap()).unwrap();
 
     let player_id = PlayerID::new();
     let mut registered = false;
-    let mut last_register_sent = Instant::now();
 
     let mut game_state = GameState::new();
+    let mut last_register_sent = Instant::now();
     loop {
         // recv net
-        while let Some(game_state_bin) = client.receive_message(0) {
+        while let Some(Ok(net_game_state)) = client.receive_unreliable() {
             log::info!("received game state");
             registered = true;
-            game_state = GameState::deserialize(&game_state_bin);
+            game_state = net_game_state;
         }
-
-        let now = Instant::now();
-        let duration = now - last_updated;
-        last_updated = now;
 
         let mut input = Input::default();
         let mut x = 0.0f32;
@@ -71,23 +58,17 @@ async fn main() {
         //send net
         if registered && input.angle.is_some() {
             let msg = ClientMessage::Input(input);
-            let msg_bin = msg.serialize();
-            client.send_message(DefaultChannel::Unreliable, msg_bin);
+            client.send_unreliable(&msg).unwrap();
         }
 
-        if client.is_connected() && !registered && last_register_sent.elapsed().as_secs_f32() > 1.0
-        {
+        if !registered && last_register_sent.elapsed().as_secs_f32() > 1.0 {
             last_register_sent = Instant::now();
             log::info!("sending register message");
             let msg = ClientMessage::Register { id: player_id };
-            let msg_bin = msg.serialize();
-            client.send_message(DefaultChannel::Unreliable, msg_bin);
+            client.send_unreliable(&msg).unwrap();
         }
 
-        client.update(duration);
-        transport.update(duration, &mut client).unwrap();
-
-        transport.send_packets(&mut client).unwrap();
+        client.tick().unwrap();
 
         next_frame().await;
     }

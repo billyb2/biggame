@@ -1,14 +1,51 @@
-use renet2::RenetClient;
+use std::net::IpAddr;
+
+use renet2::{Bytes, RenetClient};
 use renet2_netcode::NetcodeClientTransport;
 use renetcode2::ClientAuthentication;
 
 #[cfg(not(target_family = "wasm"))]
-use std::time::SystemTime;
+pub use std::time::Instant;
 #[cfg(target_family = "wasm")]
-use wasmtimer::std::SystemTime;
+pub use wasmtimer::std::Instant;
+
+pub struct Client {
+    client: RenetClient,
+    transport: NetcodeClientTransport,
+    last_updated: Instant,
+}
+
+impl Client {
+    // we must call this function every game tick
+    pub fn tick(&mut self) -> anyhow::Result<()> {
+        let now = Instant::now();
+        let duration = now - self.last_updated;
+        self.last_updated = Instant::now();
+
+        self.client.update(duration);
+        self.transport.update(duration, &mut self.client)?;
+
+        self.transport.send_packets(&mut self.client)?;
+
+        Ok(())
+    }
+
+    pub fn receive_unreliable<D: serde::de::DeserializeOwned>(&mut self) -> Option<anyhow::Result<D>> {
+        self.client.receive_message(0).map(|msg| {
+            rmp_serde::decode::from_slice(&msg).map_err(|e| e.into())
+        })
+    }
+
+    pub fn send_unreliable<S: serde::ser::Serialize>(&mut self, data: &S) -> Result<(), rmp_serde::encode::Error>{
+        let data = rmp_serde::to_vec(&data)?;
+        self.client.send_message(0, Bytes::from(data));
+
+        Ok(())
+    }
+}
 
 #[cfg(target_family = "wasm")]
-pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
+pub fn new_client(server_ip: IpAddr) -> anyhow::Result<Client> {
     use renet2::ConnectionConfig;
     use renet2_netcode::{
         webtransport_is_available_with_cert_hashes, ClientSocket, CongestionControl,
@@ -45,39 +82,23 @@ pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
     let client = RenetClient::new(ConnectionConfig::test(), socket.is_reliable());
     let transport = NetcodeClientTransport::new(current_time, client_auth, socket).unwrap();
 
-    (client, transport)
-}
-
-#[cfg(target_family = "wasm")]
-fn make_http_request(url: &str) -> String {
-    use wasm_bindgen::JsValue;
-    use web_sys::XmlHttpRequest;
-    let xhr = XmlHttpRequest::new().unwrap();
-
-    // false as the third parameter makes it synchronous
-    xhr.open_with_async("GET", url, false).unwrap();
-    xhr.send().unwrap();
-
-    if xhr.status().unwrap() == 200 {
-        xhr.response_text().unwrap().unwrap()
-    } else {
-        panic!(
-            "{}",
-            &format!("Request failed with status: {}", xhr.status().unwrap())
-        );
-    }
+    Ok(Client {
+        client,
+        transport,
+        last_updated: Instant::now(),
+    })
 }
 
 #[cfg(not(target_family = "wasm"))]
-pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
-    use std::net::{SocketAddr, UdpSocket};
+pub fn new_client(server_ip: IpAddr) -> anyhow::Result<Client> {
+    use std::{net::{SocketAddr, UdpSocket}, time::SystemTime};
 
     use renet2::{ConnectionConfig, RenetClient};
     use renet2_netcode::NativeSocket;
 
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let server_addr = runtime.block_on(async move {
-        reqwest::get("http://127.0.0.1:4433/native")
+        reqwest::get(format!("http://{}:4433/native", server_ip.to_string()))
             .await
             .unwrap()
             .json::<SocketAddr>()
@@ -85,7 +106,7 @@ pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
             .unwrap()
     });
 
-    let mut udp_socket = UdpSocket::bind("127.0.0.1:12345").unwrap();
+    let udp_socket = UdpSocket::bind("127.0.0.1:12345").unwrap();
     udp_socket
         .set_read_timeout(Some(std::time::Duration::from_secs(5)))
         .unwrap();
@@ -106,5 +127,29 @@ pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
     let transport =
         NetcodeClientTransport::new(current_time, authentication, client_socket).unwrap();
 
-    (client, transport)
+    Ok(Client {
+        client,
+        transport,
+        last_updated: Instant::now(),
+    })
+}
+
+#[cfg(target_family = "wasm")]
+fn make_http_request(url: &str) -> String {
+    use wasm_bindgen::JsValue;
+    use web_sys::XmlHttpRequest;
+    let xhr = XmlHttpRequest::new().unwrap();
+
+    // false as the third parameter makes it synchronous
+    xhr.open_with_async("GET", url, false).unwrap();
+    xhr.send().unwrap();
+
+    if xhr.status().unwrap() == 200 {
+        xhr.response_text().unwrap().unwrap()
+    } else {
+        panic!(
+            "{}",
+            &format!("Request failed with status: {}", xhr.status().unwrap())
+        );
+    }
 }

@@ -51,16 +51,6 @@ impl GameState {
     pub fn remove_player(&mut self, id: PlayerID) {
         self.players.remove(&id);
     }
-
-    pub fn serialize(&self) -> Vec<u8> {
-        let mut game_state = self.clone();
-        game_state.player_clients.clear();
-        rmp_serde::to_vec(&game_state).unwrap()
-    }
-
-    pub fn deserialize(data: &[u8]) -> Self {
-        rmp_serde::from_slice(data).unwrap()
-    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -69,27 +59,7 @@ pub enum ClientMessage {
     Input(Input),
 }
 
-impl ClientMessage {
-    pub fn serialize(&self) -> Vec<u8> {
-        rmp_serde::to_vec(self).unwrap()
-    }
-
-    pub fn deserialize(data: &[u8]) -> Self {
-        rmp_serde::from_slice(data).unwrap()
-    }
-}
-
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct Input {
     pub angle: Option<f32>,
-}
-
-impl Input {
-    pub fn serialize(&self) -> Vec<u8> {
-        rmp_serde::to_vec(self).unwrap()
-    }
-
-    pub fn deserialize(data: &[u8]) -> Self {
-        rmp_serde::from_slice(data).unwrap()
-    }
 }

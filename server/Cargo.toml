@@ -4,13 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1", features = ["net", "rt-multi-thread", "macros", "time", "sync", "io-std"] }
 shared = { path = "../shared" }
 uuid = "1"
-anyhow = "1.0.95"
-warp = "0.3.7"
-url = "2.5.4"
-renet2 = "0.1"
-renetcode2 = "0.1"
-renet2_netcode = { version = "0.1", default-features = false, features = ["serde", "native_transport", "wt_server_transport", "ws_server_transport"] }
-log = "0.4.25"
+anyhow = "1"
+url = "2"
+log = "0.4"
+bbge = { path = "../bbge", default-features = false, features = ["server"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+env_logger = "0.11.6"

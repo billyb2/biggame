@@ -5,9 +5,8 @@ edition = "2021"
 
 [dependencies]
 glam = { version = "0.28", features = ["serde"] }
-rand = "0.8.5"
-rmp-serde = "1"
+rand = "0.9"
 serde = { version = "1", features = ["derive"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = ["js"] }
+getrandom = { version = "0.3", features = ["wasm_js"] }
