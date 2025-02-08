@@ -85,7 +85,11 @@ pub fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
             .unwrap()
     });
 
-    let client_socket = NativeSocket::new(UdpSocket::bind("127.0.0.1:0").unwrap()).unwrap();
+    let mut udp_socket = UdpSocket::bind("127.0.0.1:12345").unwrap();
+    udp_socket
+        .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+        .unwrap();
+    let client_socket = NativeSocket::new(udp_socket).unwrap();
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();
