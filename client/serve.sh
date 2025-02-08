@@ -4,4 +4,4 @@
 
 # Start basic HTTP server
 echo "Starting basic HTTP server..."
-basic-http-server ./dist
+updog -d ./dist
